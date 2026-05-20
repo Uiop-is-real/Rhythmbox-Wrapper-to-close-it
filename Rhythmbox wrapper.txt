@@ -1,0 +1,59 @@
+rhythmbox wrapper that CLOSES IT WHEN I WANT TO CLOSE IT! 
+
+preparation:
+
+which wmctrl || sudo apt install wmctrl
+
+
+then:
+
+
+mkdir -p ~/.local/bin
+cat > ~/.local/bin/rhythmbox << 'EOF'
+#!/bin/bash
+/usr/bin/rhythmbox &
+sleep 2
+while wmctrl -l 2>/dev/null | grep -qi "rhythmbox"; do
+    sleep 1
+done
+rhythmbox-client --quit 2>/dev/null
+EOF
+chmod +x ~/.local/bin/rhythmbox
+
+
+Make sure ~/.local/bin is ahead of /usr/bin in your PATH:
+
+echo $PATH
+
+If it's not, add this to your ~/.bashrc:
+
+export PATH="$HOME/.local/bin:$PATH"
+
+Then source ~/.bashrc.
+
+And the desktop launches, not only terminal:
+
+cp /usr/share/applications/rhythmbox.desktop ~/.local/share/applications/rhythmbox.desktop
+sed -i 's|Exec=rhythmbox|Exec=/home/gamey/.local/bin/rhythmbox|g' ~/.local/share/applications/rhythmbox.desktop
+
+
+
+these are the terminal coordinates:
+
+~/.local/bin/rhythmbox &
+sleep 3 && wmctrl -l | grep -i rhythmbox
+
+and again, the right code:
+
+cat > ~/.local/bin/rhythmbox << 'EOF'
+#!/bin/bash
+/usr/bin/rhythmbox &
+for i in $(seq 1 15); do
+    wmctrl -lx 2>/dev/null | grep -qi "rhythmbox.Rhythmbox" && break
+    sleep 1
+done
+while wmctrl -lx 2>/dev/null | grep -qi "rhythmbox.Rhythmbox"; do
+    sleep 1
+done
+rhythmbox-client --quit 2>/dev/null
+EOF
